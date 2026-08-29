@@ -8,6 +8,7 @@ import { UserDto } from '../dtos/user.dto';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { ACCESS_LEVEL, USER_ORIGIN } from 'src/constants';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Injectable()
 export class UsersService {
@@ -101,5 +102,33 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  // search all users
+  public async findAllUsers(paginationDto: PaginationDto): Promise<{
+    limit: number;
+    offset: number;
+    count: number;
+    users: UsersEntity[];
+  }> {
+    const limit = paginationDto.limit || Number(process.env.LIMIT) || 1000;
+    const offset = paginationDto.offset || Number(process.env.OFFSET) || 0;
+
+    const [users, count] = await this.usersRepository
+      .createQueryBuilder('users')
+      .take(limit)
+      .skip(offset)
+      .getManyAndCount();
+
+    if (!count) {
+      throw new HttpException(`No users found`, HttpStatus.BAD_REQUEST);
+    }
+
+    return {
+      limit,
+      offset,
+      count,
+      users,
+    };
   }
 }

@@ -1,8 +1,17 @@
-import { Body, Controller, Post, Get, Param, ParseUUIDPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Query,
+} from '@nestjs/common';
 import { UsersService } from '../services/users.service';
 import { UserDto } from '../dtos/user.dto';
 import { USER_ORIGIN } from 'src/constants';
 import { UsersEntity } from '../entities/users.entity';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Controller('users')
 export class UsersController {
@@ -23,5 +32,16 @@ export class UsersController {
     @Param('userId', ParseUUIDPipe) userId: string,
   ): Promise<UsersEntity> {
     return await this.usersService.findUserById(userId);
+  }
+
+  // get all users
+  @Get('all')
+  public async findAllUsers(@Query() paginationDto: PaginationDto): Promise<{
+    limit: number;
+    offset: number;
+    count: number;
+    users: UsersEntity[];
+  }> {
+    return await this.usersService.findAllUsers(paginationDto);
   }
 }
