@@ -1,0 +1,3 @@
+SELECT 'CREATE DATABASE db_iot'
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'db_iot')\gexec
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
