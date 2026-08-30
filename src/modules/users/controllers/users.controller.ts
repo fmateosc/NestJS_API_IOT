@@ -21,6 +21,7 @@ import { PasswordUserDto } from '../dtos/update.password.user.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  // create a new user
   @Post('register')
   public async createNewUser(@Body() newUserData: UserDto): Promise<{
     status: boolean;
@@ -28,6 +29,14 @@ export class UsersController {
     user: UsersEntity;
   }> {
     return await this.usersService.createNewUser(newUserData, USER_ORIGIN.WEB);
+  }
+
+  // create a new user by ROOT
+  @Post('register/root')
+  public async createNewUserByRoot(
+    @Body() newUserData: UserDto,
+  ): Promise<{ status: boolean; message: string; user: UsersEntity }> {
+    return await this.usersService.createNewUser(newUserData, USER_ORIGIN.ROOT);
   }
 
   // find a user by id
