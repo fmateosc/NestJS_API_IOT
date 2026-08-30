@@ -3,6 +3,7 @@ import {
   Controller,
   Post,
   Get,
+  Put,
   Param,
   ParseUUIDPipe,
   Query,
@@ -12,6 +13,7 @@ import { UserDto } from '../dtos/user.dto';
 import { USER_ORIGIN } from 'src/constants';
 import { UsersEntity } from '../entities/users.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { UpdateUserDto } from '../dtos/update.user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -43,5 +45,14 @@ export class UsersController {
     users: UsersEntity[];
   }> {
     return await this.usersService.findAllUsers(paginationDto);
+  }
+
+  // update a user by id
+  @Put('update/:userId')
+  public async updateUserById(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Body() updatedUserData: UpdateUserDto,
+  ): Promise<{ status: boolean; user: UsersEntity }> {
+    return await this.usersService.updateUserById(updatedUserData, userId);
   }
 }

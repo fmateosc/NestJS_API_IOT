@@ -9,6 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { ACCESS_LEVEL, USER_ORIGIN } from 'src/constants';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { UpdateUserDto } from '../dtos/update.user.dto';
 
 @Injectable()
 export class UsersService {
@@ -129,6 +130,35 @@ export class UsersService {
       offset,
       count,
       users,
+    };
+  }
+
+  // update user by Id
+  public async updateUserById(
+    updatedUserData: UpdateUserDto,
+    userId: string,
+  ): Promise<{ status: boolean; user: UsersEntity }> {
+    const existingUser = await this.findUserById(userId);
+
+    if (updatedUserData.password) {
+      const saltRounds = Number(process.env.HASH_SALT) || 10;
+      updatedUserData.password = await bcrypt.hash(
+        updatedUserData.password,
+        saltRounds,
+      );
+    }
+
+    if (existingUser.userAccess === ACCESS_LEVEL.ADMIN) {
+      updatedUserData.isSuperuser = false;
+      updatedUserData.userAccess = ACCESS_LEVEL.ADMIN;
+      updatedUserData.userStatus = existingUser.userStatus;
+    }
+
+    await this.usersRepository.update(userId, updatedUserData);
+
+    return {
+      status: true,
+      user: { ...existingUser, ...updatedUserData },
     };
   }
 }
