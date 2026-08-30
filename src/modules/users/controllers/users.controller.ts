@@ -4,6 +4,7 @@ import {
   Post,
   Get,
   Put,
+  Delete,
   Param,
   ParseUUIDPipe,
   Query,
@@ -14,6 +15,7 @@ import { USER_ORIGIN } from 'src/constants';
 import { UsersEntity } from '../entities/users.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { UpdateUserDto } from '../dtos/update.user.dto';
+import { PasswordUserDto } from '../dtos/update.password.user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -54,5 +56,25 @@ export class UsersController {
     @Body() updatedUserData: UpdateUserDto,
   ): Promise<{ status: boolean; user: UsersEntity }> {
     return await this.usersService.updateUserById(updatedUserData, userId);
+  }
+
+  // delete a user by id
+  @Delete('delete/:userId')
+  public async deleteUserById(
+    @Param('userId', ParseUUIDPipe) userId: string,
+  ): Promise<{ status: boolean; user: UsersEntity }> {
+    return await this.usersService.deleteUserById(userId);
+  }
+
+  // update user password by id
+  @Put('update/password/:userId')
+  public async updateUserPasswordById(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Body() userPasswordData: PasswordUserDto,
+  ): Promise<{ status: boolean; user: UsersEntity }> {
+    return await this.usersService.updateUserPasswordById(
+      userPasswordData,
+      userId,
+    );
   }
 }
