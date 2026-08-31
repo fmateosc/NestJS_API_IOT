@@ -1,6 +1,13 @@
 // auth.controller.ts
 
-import { Body, Controller, HttpException, HttpStatus, Logger, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpException,
+  HttpStatus,
+  Logger,
+  Post,
+} from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { AuthDto } from '../dtos/auth.dto';
 import { AuthResponse } from '../intefaces/auth.interface';
@@ -26,6 +33,9 @@ export class AuthController {
       );
     }
 
-    delete userValidate.password; // Remove password from the user object before returning
+    const { password: _, ...userWithoutPassword } = userValidate; // Exclude password from the user object
+    const jwt = await this.authService.generateJWT(userWithoutPassword);
+
+    return jwt;
   }
 }
