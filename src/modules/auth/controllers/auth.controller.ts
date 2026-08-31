@@ -1,6 +1,6 @@
 // auth.controller.ts
 
-import { Body, Controller, Logger, Post } from '@nestjs/common';
+import { Body, Controller, HttpException, HttpStatus, Logger, Post } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { AuthDto } from '../dtos/auth.dto';
 import { AuthResponse } from '../intefaces/auth.interface';
@@ -14,6 +14,18 @@ export class AuthController {
   // Login endpoint
   @Post('login')
   async login(@Body() { username, password }: AuthDto): Promise<AuthResponse> {
-    
+    const userValidate = await this.authService.validateUser(
+      username,
+      password,
+    );
+
+    if (!userValidate) {
+      throw new HttpException(
+        `Invalid username or password`,
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    delete userValidate.password; // Remove password from the user object before returning
   }
 }
