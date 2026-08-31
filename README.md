@@ -10,10 +10,19 @@ npm add @nestjs/mapped-types
 npm add bcrypt 
 npm add -D @types/bcrypt
 
+# Instalar JWT
+npm add jsonwebtoken
+npm add -D @types/jsonwebtoken
+
 ## Users
 nest g mo modules/users/users --flat --no-spec
 nest g s modules/users/services/users --flat --no-spec
 nest g co modules/users/controllers/users --flat --no-spec
+
+## Authentication
+nest g mo modules/auth/auth --flat --no-spec
+nest g s modules/auth/services/auth --flat --no-spec
+nest g co modules/auth/controllers/auth --flat --no-spec
 
 ## Migrations
 npm run migration:generate
