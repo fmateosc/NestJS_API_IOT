@@ -1,6 +1,12 @@
 // users.service.ts
 
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersEntity } from '../entities/users.entity';
 import { Repository } from 'typeorm';
@@ -11,12 +17,15 @@ import { ACCESS_LEVEL, USER_ORIGIN } from 'src/constants';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { UpdateUserDto } from '../dtos/update.user.dto';
 import { PasswordUserDto } from '../dtos/update.password.user.dto';
+import { AuthService } from 'src/modules/auth/services/auth.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UsersEntity)
     private readonly usersRepository: Repository<UsersEntity>,
+    @Inject(forwardRef(() => AuthService))
+    private readonly authService: AuthService,
   ) {}
 
   // create a new user
@@ -80,6 +89,10 @@ export class UsersService {
     });
 
     const savedUser = await this.usersRepository.save(newUser);
+
+    if (savedUser.userAccess === ACCESS_LEVEL.ADMIN) {
+      await this.authService.createNewAclRule(savedUser);
+    }
 
     return {
       status: true,

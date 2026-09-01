@@ -1,18 +1,30 @@
 // auth.service.ts
 
-import { forwardRef, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { UsersEntity } from 'src/modules/users/entities/users.entity';
 import { UsersService } from 'src/modules/users/services/users.service';
 import * as bcrypt from 'bcrypt';
 import { IUser } from 'src/modules/users/interfaces/user.interface';
 import { AuthResponse, PayloadToken } from '../intefaces/auth.interface';
 import * as jwt from 'jsonwebtoken';
+import { ACL_ACTION, ACL_PERMISSION } from 'src/constants/acl';
+import { AclEntity } from '../entities/acl.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
+    @InjectRepository(AclEntity)
+    private readonly aclRepository: Repository<AclEntity>,
   ) {}
 
   // validate username and password
@@ -72,5 +84,48 @@ export class AuthService {
     return jwt.sign(payload, secret, {
       expiresIn: expires as jwt.SignOptions['expiresIn'],
     });
+  }
+
+  // ACL rules
+  public async createNewAclRule(user: UsersEntity): Promise<void> {
+    const topics = [
+      `/${user.username}/#`, // /emqx6/# allowed
+      `+/#`, // deny
+    ];
+
+    const permissions: { action: ACL_ACTION; permission: ACL_PERMISSION }[] = [
+      { action: ACL_ACTION.ALL, permission: ACL_PERMISSION.ALLOW },
+      { action: ACL_ACTION.ALL, permission: ACL_PERMISSION.DENY },
+    ];
+
+    const aclPromises = topics.map((topic, index) =>
+      this.createAndSaveAcl(
+        user.username,
+        permissions[index].action,
+        permissions[index].permission,
+        topic,
+        user.id,
+      ),
+    );
+  }
+
+  private async createAndSaveAcl(
+    username: string,
+    action: ACL_ACTION,
+    permission: ACL_PERMISSION,
+    topic: string,
+    createUserId: string,
+  ): Promise<AclEntity> {
+    const newAcl = this.aclRepository.create({
+      username,
+      action,
+      permission,
+      topic,
+      qos: 0,
+      retain: 0,
+      createUserId: { id: createUserId },
+    });
+
+    return this.aclRepository.save(newAcl);
   }
 }
