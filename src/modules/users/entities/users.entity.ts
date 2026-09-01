@@ -3,6 +3,7 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from 'src/config/base.entity';
 import { ACCESS_LEVEL, USER_ORIGIN } from 'src/constants';
+import { AclEntity } from 'src/modules/auth/entities/acl.entity';
 
 /**
  * @description Entidad Primaria y Core de Autenticación (`mqtt_user` o `users`).
@@ -127,4 +128,8 @@ export class UsersEntity extends BaseEntity {
     default: USER_ORIGIN.WEB,
   })
   userOrigin: string;
+
+  // acl
+  @OneToMany(() => AclEntity, (acl) => acl.createUserId)
+  aclRules: AclEntity[];
 }
