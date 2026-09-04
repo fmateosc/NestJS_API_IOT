@@ -13,15 +13,18 @@ import { AuthService } from '../services/auth.service';
 import { AuthDto } from '../dtos/auth.dto';
 import { AuthResponse } from '../intefaces/auth.interface';
 import { AuthGuard } from '../guard/auth.guard';
+import { AccessLevelGuard } from '../guard/access-level.guard';
+import { PublicAccess } from '../decorators/public.decorator';
 
 @Controller('auth')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, AccessLevelGuard)
 export class AuthController {
   private logger = new Logger(AuthController.name);
 
   constructor(private readonly authService: AuthService) {}
 
   // Login endpoint
+  @PublicAccess()
   @Post('login')
   async login(@Body() { username, password }: AuthDto): Promise<AuthResponse> {
     const userValidate = await this.authService.validateUser(
