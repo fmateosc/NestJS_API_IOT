@@ -13,6 +13,7 @@ import { PUBLIC_KEY } from 'src/constants';
 import { UsersService } from 'src/modules/users/services/users.service';
 import { IUseToken } from '../intefaces/auth.interface';
 import { useToken } from 'src/util/use.token';
+import { Request } from 'express';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -26,26 +27,35 @@ export class AuthGuard implements CanActivate {
       PUBLIC_KEY,
       context.getHandler(),
     );
-
     if (isPublic) {
       return true;
     }
 
     const req = context.switchToHttp().getRequest<Request>();
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const token = req.headers['token'];
-
     if (!token || Array.isArray(token)) {
       throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const manageToken: IUseToken | string = useToken(token);
-
     if (typeof manageToken === 'string') {
       throw new UnauthorizedException(manageToken);
     }
+
+    if (manageToken.isExpired) {
+      throw new UnauthorizedException('Token has expired');
+    }
+
+    const { userId } = manageToken;
+    const user = await this.usersService.findBy({ key: 'id', value: userId });
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid User');
+    }
+
+    req.userId = user.id;
+    req.userAccess = user.userAccess;
 
     return true;
   }

@@ -7,12 +7,15 @@ import {
   HttpStatus,
   Logger,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { AuthDto } from '../dtos/auth.dto';
 import { AuthResponse } from '../intefaces/auth.interface';
+import { AuthGuard } from '../guard/auth.guard';
 
 @Controller('auth')
+@UseGuards(AuthGuard)
 export class AuthController {
   private logger = new Logger(AuthController.name);
 
