@@ -28,3 +28,7 @@ nest g co modules/auth/controllers/auth --flat --no-spec
 npm run migration:generate
 npm run migration:run
 
+## Guard
+nest g gu modules/auth/guard/auth --flat --no-spec
+nest g gu modules/auth/guard/access-level --flat --no-spec
+
