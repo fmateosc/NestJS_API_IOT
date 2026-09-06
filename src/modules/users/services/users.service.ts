@@ -18,6 +18,7 @@ import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { UpdateUserDto } from '../dtos/update.user.dto';
 import { PasswordUserDto } from '../dtos/update.password.user.dto';
 import { AuthService } from 'src/modules/auth/services/auth.service';
+import { IUserInfo } from 'src/modules/auth/intefaces/auth.interface';
 
 @Injectable()
 export class UsersService {
@@ -102,10 +103,18 @@ export class UsersService {
   }
 
   // search users by Id
-  public async findUserById(userId: string): Promise<UsersEntity> {
+  public async findUserById(
+    userId: string,
+    userInfo: IUserInfo,
+  ): Promise<UsersEntity> {
     const queryBuilder = this.usersRepository
       .createQueryBuilder('users')
       .where({ id: userId });
+    // validate user
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
+    if (userInfo.userAccess === ACCESS_LEVEL.ADMIN) {
+      queryBuilder.andWhere('users.id = :id', { id: userInfo.userId });
+    }
 
     const user = await queryBuilder.getOne();
 
@@ -151,8 +160,9 @@ export class UsersService {
   public async updateUserById(
     updatedUserData: UpdateUserDto,
     userId: string,
+    userInfo: IUserInfo,
   ): Promise<{ status: boolean; user: UsersEntity }> {
-    const existingUser = await this.findUserById(userId);
+    const existingUser = await this.findUserById(userId, userInfo);
 
     if (updatedUserData.password) {
       const saltRounds = Number(process.env.HASH_SALT) || 10;
@@ -179,8 +189,9 @@ export class UsersService {
   // delete user by Id
   public async deleteUserById(
     userId: string,
+    userInfo: IUserInfo,
   ): Promise<{ status: boolean; user: UsersEntity }> {
-    const existingUser = await this.findUserById(userId);
+    const existingUser = await this.findUserById(userId, userInfo);
 
     await this.usersRepository.delete(userId);
 

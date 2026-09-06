@@ -21,6 +21,8 @@ import { AuthGuard } from 'src/modules/auth/guard/auth.guard';
 import { AccessLevelGuard } from 'src/modules/auth/guard/access-level.guard';
 import { PublicAccess } from 'src/modules/auth/decorators/public.decorator';
 import { Access } from 'src/modules/auth/decorators/access.decorator';
+import * as authInterface from 'src/modules/auth/intefaces/auth.interface';
+import { GetUserInfo } from 'src/modules/auth/decorators/user.info.decorator';
 
 @Controller('users')
 @UseGuards(AuthGuard, AccessLevelGuard)
@@ -52,8 +54,9 @@ export class UsersController {
   @Get('find/:userId')
   public async findUserById(
     @Param('userId', ParseUUIDPipe) userId: string,
+    @GetUserInfo() userInfo: authInterface.IUserInfo,
   ): Promise<UsersEntity> {
-    return await this.usersService.findUserById(userId);
+    return await this.usersService.findUserById(userId, userInfo);
   }
 
   // get all users
@@ -74,8 +77,13 @@ export class UsersController {
   public async updateUserById(
     @Param('userId', ParseUUIDPipe) userId: string,
     @Body() updatedUserData: UpdateUserDto,
+    @GetUserInfo() userInfo: authInterface.IUserInfo,
   ): Promise<{ status: boolean; user: UsersEntity }> {
-    return await this.usersService.updateUserById(updatedUserData, userId);
+    return await this.usersService.updateUserById(
+      updatedUserData,
+      userId,
+      userInfo,
+    );
   }
 
   // delete a user by id
@@ -83,8 +91,9 @@ export class UsersController {
   @Delete('delete/:userId')
   public async deleteUserById(
     @Param('userId', ParseUUIDPipe) userId: string,
+    @GetUserInfo() userInfo: authInterface.IUserInfo,
   ): Promise<{ status: boolean; user: UsersEntity }> {
-    return await this.usersService.deleteUserById(userId);
+    return await this.usersService.deleteUserById(userId, userInfo);
   }
 
   // update user password by id

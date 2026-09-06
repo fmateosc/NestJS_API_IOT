@@ -30,3 +30,8 @@ export interface IAuthTokenResult {
   iat: number;
   exp: number;
 }
+
+export interface IUserInfo {
+  userId: string;
+  userAccess: string;
+}
