@@ -8,6 +8,7 @@ import {
   Param,
   ParseUUIDPipe,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from '../services/users.service';
 import { UserDto } from '../dtos/user.dto';
@@ -16,12 +17,18 @@ import { UsersEntity } from '../entities/users.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { UpdateUserDto } from '../dtos/update.user.dto';
 import { PasswordUserDto } from '../dtos/update.password.user.dto';
+import { AuthGuard } from 'src/modules/auth/guard/auth.guard';
+import { AccessLevelGuard } from 'src/modules/auth/guard/access-level.guard';
+import { PublicAccess } from 'src/modules/auth/decorators/public.decorator';
+import { Access } from 'src/modules/auth/decorators/access.decorator';
 
 @Controller('users')
+@UseGuards(AuthGuard, AccessLevelGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   // create a new user
+  @PublicAccess()
   @Post('register')
   public async createNewUser(@Body() newUserData: UserDto): Promise<{
     status: boolean;
@@ -32,6 +39,7 @@ export class UsersController {
   }
 
   // create a new user by ROOT
+  @Access('ROOT')
   @Post('register/root')
   public async createNewUserByRoot(
     @Body() newUserData: UserDto,
@@ -40,6 +48,7 @@ export class UsersController {
   }
 
   // find a user by id
+  @Access('ADMIN')
   @Get('find/:userId')
   public async findUserById(
     @Param('userId', ParseUUIDPipe) userId: string,
@@ -48,6 +57,7 @@ export class UsersController {
   }
 
   // get all users
+  @Access('ROOT')
   @Get('all')
   public async findAllUsers(@Query() paginationDto: PaginationDto): Promise<{
     limit: number;
@@ -59,6 +69,7 @@ export class UsersController {
   }
 
   // update a user by id
+  @Access('ADMIN')
   @Put('update/:userId')
   public async updateUserById(
     @Param('userId', ParseUUIDPipe) userId: string,
@@ -68,6 +79,7 @@ export class UsersController {
   }
 
   // delete a user by id
+  @Access('ADMIN')
   @Delete('delete/:userId')
   public async deleteUserById(
     @Param('userId', ParseUUIDPipe) userId: string,
@@ -76,6 +88,7 @@ export class UsersController {
   }
 
   // update user password by id
+  @Access('ADMIN')
   @Put('update/password/:userId')
   public async updateUserPasswordById(
     @Param('userId', ParseUUIDPipe) userId: string,
