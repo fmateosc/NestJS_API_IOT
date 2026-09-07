@@ -4,6 +4,7 @@ import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from 'src/config/base.entity';
 import { ACCESS_LEVEL, USER_ORIGIN } from 'src/constants';
 import { AclEntity } from 'src/modules/auth/entities/acl.entity';
+import { DevicesEntity } from 'src/modules/devices/entities/devices.entity';
 
 /**
  * @description Entidad Primaria y Core de Autenticación (`mqtt_user` o `users`).
@@ -132,4 +133,8 @@ export class UsersEntity extends BaseEntity {
   // acl
   @OneToMany(() => AclEntity, (acl) => acl.createUserId)
   aclRules: AclEntity[];
+
+  // devices
+  @OneToMany(() => DevicesEntity, (device) => device.createUserId)
+  userDevices: DevicesEntity[];
 }

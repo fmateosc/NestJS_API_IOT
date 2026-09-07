@@ -32,3 +32,8 @@ npm run migration:run
 nest g gu modules/auth/guard/auth --flat --no-spec
 nest g gu modules/auth/guard/access-level --flat --no-spec
 
+## Devices
+nest g mo modules/devices/devices --flat --no-spec
+nest g s modules/devices/services/devices --flat --no-spec
+nest g co modules/devices/controllers/devices --flat --no-spec
+
