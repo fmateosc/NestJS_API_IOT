@@ -3,6 +3,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
@@ -18,6 +19,7 @@ import { DeviceDto } from '../dtos/devices.dto';
 import { AccessLevelGuard } from 'src/modules/auth/guard/access-level.guard';
 import { AuthGuard } from 'src/modules/auth/guard/auth.guard';
 import { UpdateDeviceDto } from '../dtos/update.device.dto';
+import { IUserInfo } from 'src/modules/auth/intefaces/auth.interface';
 
 @Controller('devices')
 @UseGuards(AuthGuard, AccessLevelGuard)
@@ -57,5 +59,15 @@ export class DevicesController {
       deviceId,
       userInfo,
     );
+  }
+
+  // Eliminar un dispositivo por el Id | Delete a device by ID
+  @Access('ADMIN')
+  @Delete('delete/:deviceId')
+  public async deleteDeviceById(
+    @Param('deviceId', ParseUUIDPipe) deviceId: string,
+    @GetUserInfo() userInfo: authInterface.IUserInfo,
+  ) {
+    return await this.deviceService.deleteDeviceById(deviceId, userInfo);
   }
 }
