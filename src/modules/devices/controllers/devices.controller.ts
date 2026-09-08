@@ -1,6 +1,15 @@
 // src/modules/devices/controllers/devices.controller.ts
 
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { DevicesService } from '../services/devices.service';
 import { Access } from 'src/modules/auth/decorators/access.decorator';
 import { GetUserInfo } from 'src/modules/auth/decorators/user.info.decorator';
@@ -8,6 +17,7 @@ import * as authInterface from 'src/modules/auth/intefaces/auth.interface';
 import { DeviceDto } from '../dtos/devices.dto';
 import { AccessLevelGuard } from 'src/modules/auth/guard/access-level.guard';
 import { AuthGuard } from 'src/modules/auth/guard/auth.guard';
+import { UpdateDeviceDto } from '../dtos/update.device.dto';
 
 @Controller('devices')
 @UseGuards(AuthGuard, AccessLevelGuard)
@@ -32,5 +42,20 @@ export class DevicesController {
     @GetUserInfo() userInfo: authInterface.IUserInfo,
   ) {
     return await this.deviceService.findDeviceById(deviceId, userInfo);
+  }
+
+  // Actualizar un dispositivo por el Id | Update a device by ID
+  @Access('ADMIN')
+  @Put('update/:deviceId')
+  public async updateDeviceById(
+    @Param('deviceId', ParseUUIDPipe) deviceId: string,
+    @Body() updateDeviceData: UpdateDeviceDto,
+    @GetUserInfo() userInfo: authInterface.IUserInfo,
+  ) {
+    return await this.deviceService.updateDeviceById(
+      updateDeviceData,
+      deviceId,
+      userInfo,
+    );
   }
 }

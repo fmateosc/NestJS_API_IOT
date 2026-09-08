@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeviceDto } from '../dtos/devices.dto';
 import { IUserInfo } from 'src/modules/auth/intefaces/auth.interface';
 import { ACCESS_LEVEL } from 'src/constants';
+import { UpdateDeviceDto } from '../dtos/update.device.dto';
 
 @Injectable()
 export class DevicesService {
@@ -68,5 +69,21 @@ export class DevicesService {
     }
 
     return deviceResult;
+  }
+
+  // Actualizar un dispositivo por el Id | Update a device by ID
+  public async updateDeviceById(
+    updateDeviceData: UpdateDeviceDto,
+    deviceId: string,
+    userInfo: IUserInfo,
+  ): Promise<{ status: boolean; device: DevicesEntity }> {
+    const existingDevice = await this.findDeviceById(deviceId, userInfo);
+
+    await this.deviceRepository.update(deviceId, updateDeviceData);
+
+    return {
+      status: true,
+      device: { ...existingDevice, ...updateDeviceData },
+    };
   }
 }
