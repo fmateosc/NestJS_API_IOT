@@ -8,6 +8,7 @@ import { DeviceDto } from '../dtos/devices.dto';
 import { IUserInfo } from 'src/modules/auth/intefaces/auth.interface';
 import { ACCESS_LEVEL } from 'src/constants';
 import { UpdateDeviceDto } from '../dtos/update.device.dto';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Injectable()
 export class DevicesService {
@@ -99,6 +100,48 @@ export class DevicesService {
     return {
       status: true,
       device: existingDevice,
+    };
+  }
+
+  // Buscar todos los dispositivos | Find all devices
+  public async findAllDevices(
+    paginationDto: PaginationDto,
+    userInfo: IUserInfo,
+  ): Promise<{
+    limit: number;
+    offset: number;
+    count: number;
+    devices: DevicesEntity[];
+  }> {
+    const { userAccess, userId } = userInfo;
+    const limit = paginationDto.limit || Number(process.env.LIMIT) || 1000;
+    const offset = paginationDto.offset || Number(process.env.OFFSET) || 0;
+
+    const queryBuilder = this.deviceRepository
+      .createQueryBuilder('devices')
+      .leftJoinAndSelect('devices.createUserId', 'createUserId')
+      .take(limit)
+      .skip(offset);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
+    if (userAccess === ACCESS_LEVEL.ADMIN) {
+      queryBuilder.andWhere('devices.createUserId = :userId', { userId });
+    }
+
+    if (paginationDto.type) {
+      queryBuilder.andWhere('devices.deviceType = :type', {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        type: paginationDto.type,
+      });
+    }
+
+    const [devices, count] = await queryBuilder.getManyAndCount();
+
+    return {
+      limit,
+      offset,
+      count,
+      devices,
     };
   }
 }
