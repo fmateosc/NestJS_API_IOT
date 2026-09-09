@@ -5,6 +5,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { DevicesModule } from './modules/devices/devices.module';
+import { SettingsModule } from './modules/settings/settings.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { DevicesModule } from './modules/devices/devices.module';
     UsersModule,
     AuthModule,
     DevicesModule,
+    SettingsModule,
   ],
   controllers: [],
   providers: [],

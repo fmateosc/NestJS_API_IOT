@@ -37,3 +37,7 @@ nest g mo modules/devices/devices --flat --no-spec
 nest g s modules/devices/services/devices --flat --no-spec
 nest g co modules/devices/controllers/devices --flat --no-spec
 
+## Settings
+nest g mo modules/settings/settings --flat --no-spec
+nest g s modules/settings/services/settings --flat --no-spec
+nest g co modules/settings/controllers/settings --flat --no-spec
