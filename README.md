@@ -14,6 +14,9 @@ npm add -D @types/bcrypt
 npm add jsonwebtoken
 npm add -D @types/jsonwebtoken
 
+# Servicios http axios
+npm install --save @nestjs/axios axios
+
 ## Users
 nest g mo modules/users/users --flat --no-spec
 nest g s modules/users/services/users --flat --no-spec
@@ -41,3 +44,7 @@ nest g co modules/devices/controllers/devices --flat --no-spec
 nest g mo modules/settings/settings --flat --no-spec
 nest g s modules/settings/services/settings --flat --no-spec
 nest g co modules/settings/controllers/settings --flat --no-spec
+
+## API Services providers HTTP API
+nest g mo modules/providers/httpProvider --flat --no-spec
+nest g s modules/providers/http/emqx-api --flat --no-spec

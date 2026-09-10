@@ -6,6 +6,7 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { DevicesModule } from './modules/devices/devices.module';
 import { SettingsModule } from './modules/settings/settings.module';
+import { HttpProviderModule } from './modules/providers/http-provider.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { SettingsModule } from './modules/settings/settings.module';
     AuthModule,
     DevicesModule,
     SettingsModule,
+    HttpProviderModule,
   ],
   controllers: [],
   providers: [],
