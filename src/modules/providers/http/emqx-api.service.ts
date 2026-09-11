@@ -7,6 +7,10 @@ import { HttpService } from 'node_modules/@nestjs/axios/dist/http.service';
 import { catchError, firstValueFrom } from 'rxjs';
 import { GeneralSettingsEntity } from 'src/modules/settings/entities/settings.entity';
 import { SettingsService } from 'src/modules/settings/services/settings.service';
+import {
+  IEmqxBannedResponseData,
+  IEmqxBannedParams,
+} from 'src/common/interfaces/emqx.interface';
 
 @Injectable()
 export class EmqxApiService {
@@ -132,5 +136,18 @@ export class EmqxApiService {
   // These are formatted names.
   private formatText(text: string): string {
     return text.split(' ').join('_');
+  }
+
+  // Get the full banned list
+  public emqxApiGetBannedList(): Promise<IEmqxBannedResponseData> {
+    const url = `http://${this.dataSettings?.emqxAppHost}:${this.dataSettings?.emqxAppPort}/api/v5/banned`;
+
+    return this.requestWithConfig('get', url);
+  }
+
+  // Delete from banned list
+  public emqxApiDeleteBanned(params: IEmqxBannedParams): Promise<number> {
+    const url = `http://${this.dataSettings?.emqxAppHost}:${this.dataSettings?.emqxAppPort}/api/v5/banned/${params.as}/${params.who}`;
+    return this.requestWithConfig('delete', url);
   }
 }

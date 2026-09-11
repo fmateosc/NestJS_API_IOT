@@ -1,6 +1,12 @@
 // src/modules/devices/services/devices.service.ts
 
-import { forwardRef, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { DevicesEntity } from '../entities/devices.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,6 +16,7 @@ import { ACCESS_LEVEL } from 'src/constants';
 import { UpdateDeviceDto } from '../dtos/update.device.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { EmqxApiService } from 'src/modules/providers/http/emqx-api.service';
+import { IEmqxBannedResponseData } from 'src/common/interfaces/emqx.interface';
 
 @Injectable()
 export class DevicesService {
@@ -38,10 +45,52 @@ export class DevicesService {
       relations: { createUserId: true },
     });
 
+    // Emqx API
+    if (
+      savedDevice &&
+      (await this.httpEmqxApiService.ensureSettingsInitialized())
+    ) {
+      const [respEmqxBridge, bannedList] = await Promise.all([
+        this.httpEmqxApiService.emqxApiPostBridge({
+          name: deviceWithUser?.deviceName || savedDevice.deviceName,
+          user: deviceWithUser?.createUserId?.username || 'emqx',
+          serialId: savedDevice?.deviceSerial || savedDevice.deviceSerial,
+        }),
+
+        this.httpEmqxApiService.emqxApiGetBannedList(),
+      ]);
+
+      //update device
+      await this.updateDeviceById(
+        {
+          bridgeRuleId: `Device "${deviceWithUser?.deviceName}" with serial "${deviceWithUser?.deviceSerial}" was created successfully`,
+        },
+        savedDevice.id,
+        userInfo,
+      );
+      // Remove device from banned list if it exists
+      await this.checkWhoParameter(bannedList, newDeviceData.deviceSerial);
+    }
+
     return {
       message: `Device "${savedDevice.deviceName}" with serial "${savedDevice.deviceSerial}" was created successfully`,
       device: deviceWithUser || savedDevice,
     };
+  }
+
+  // Eliminar de la lista de baneados si existe | Remove from the banned list if it exists
+  private async checkWhoParameter(
+    response: IEmqxBannedResponseData,
+    whoParam: string,
+  ): Promise<void> {
+    const bannedSet = new Set(response.data.map((item) => item.who));
+
+    if (bannedSet.has(whoParam)) {
+      await this.httpEmqxApiService.emqxApiDeleteBanned({
+        as: 'clientid',
+        who: whoParam,
+      });
+    }
   }
 
   // Buscar un dispositivo por el Id | Search for a device by ID

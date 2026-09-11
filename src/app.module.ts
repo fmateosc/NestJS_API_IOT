@@ -7,6 +7,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { DevicesModule } from './modules/devices/devices.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { HttpProviderModule } from './modules/providers/http-provider.module';
+import { MessagesModule } from './modules/messages/messages.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { HttpProviderModule } from './modules/providers/http-provider.module';
     DevicesModule,
     SettingsModule,
     HttpProviderModule,
+    MessagesModule,
   ],
   controllers: [],
   providers: [],

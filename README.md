@@ -48,3 +48,8 @@ nest g co modules/settings/controllers/settings --flat --no-spec
 ## API Services providers HTTP API
 nest g mo modules/providers/httpProvider --flat --no-spec
 nest g s modules/providers/http/emqx-api --flat --no-spec
+
+## Messages
+nest g mo modules/messages/messages --flat --no-spec
+nest g s modules/messages/services/messages --flat --no-spec
+nest g co modules/messages/controllers/messages --flat --no-spec
