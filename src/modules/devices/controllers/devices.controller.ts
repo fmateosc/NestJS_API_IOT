@@ -81,4 +81,12 @@ export class DevicesController {
   ) {
     return await this.deviceService.findAllDevices(paginationDto, userInfo);
   }
+
+  // API EMQX
+  // DEMO
+  @Get('emqx/topics')
+  public async testEmqxApi() {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return await this.deviceService.testEmqxApi();
+  }
 }

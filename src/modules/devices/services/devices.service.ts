@@ -1,6 +1,6 @@
 // src/modules/devices/services/devices.service.ts
 
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { forwardRef, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { DevicesEntity } from '../entities/devices.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,12 +9,15 @@ import { IUserInfo } from 'src/modules/auth/intefaces/auth.interface';
 import { ACCESS_LEVEL } from 'src/constants';
 import { UpdateDeviceDto } from '../dtos/update.device.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { EmqxApiService } from 'src/modules/providers/http/emqx-api.service';
 
 @Injectable()
 export class DevicesService {
   constructor(
     @InjectRepository(DevicesEntity)
     private readonly deviceRepository: Repository<DevicesEntity>,
+    @Inject(forwardRef(() => EmqxApiService))
+    private readonly httpEmqxApiService: EmqxApiService,
   ) {}
 
   public async createNewDevice(
@@ -143,5 +146,11 @@ export class DevicesService {
       count,
       devices,
     };
+  }
+
+  // EMQX DEMO
+  public async testEmqxApi() {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return this.httpEmqxApiService.emqxApiGetTopicList();
   }
 }
