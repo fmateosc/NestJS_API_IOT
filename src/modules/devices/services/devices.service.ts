@@ -63,7 +63,7 @@ export class DevicesService {
       //update device
       await this.updateDeviceById(
         {
-          bridgeRuleId: `Device "${deviceWithUser?.deviceName}" with serial "${deviceWithUser?.deviceSerial}" was created successfully`,
+          bridgeRuleId: `${respEmqxBridge.type}:${respEmqxBridge.name}`,
         },
         savedDevice.id,
         userInfo,
@@ -133,6 +133,23 @@ export class DevicesService {
     const existingDevice = await this.findDeviceById(deviceId, userInfo);
 
     await this.deviceRepository.update(deviceId, updateDeviceData);
+
+    // Update in EMQX API
+    if (updateDeviceData.deviceStatus && !updateDeviceData.bridgeRuleId) {
+      await this.httpEmqxApiService.emqxApiDeleteBanned({
+        as: 'clientid',
+        who: existingDevice.bridgeRuleId,
+      });
+    } else if (
+      !updateDeviceData.deviceStatus &&
+      !updateDeviceData.bridgeRuleId
+    ) {
+      await this.httpEmqxApiService.emqxApiPostAddBanned({
+        as: 'clientid',
+        who: existingDevice.bridgeRuleId,
+        reason: 'Device disabled by User',
+      });
+    }
 
     return {
       status: true,
