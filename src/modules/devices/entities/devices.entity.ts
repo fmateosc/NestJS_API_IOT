@@ -29,6 +29,9 @@ export class DevicesEntity extends BaseEntity {
   @Column('text', { nullable: true })
   bridgeRuleId: string;
 
+  @Column('bool', { nullable: true })
+  bridgeRuleEnabled: boolean;
+
   @Column('bool', { default: false })
   deviceOnline: boolean;
 

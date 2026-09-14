@@ -48,6 +48,10 @@ export class DeviceDto {
   deviceStatus?: boolean;
 
   @IsOptional()
+  @IsBoolean()
+  bridgeRuleEnabled?: boolean;
+
+  @IsOptional()
   @IsDate()
   deviceLastseen?: Date;
 
