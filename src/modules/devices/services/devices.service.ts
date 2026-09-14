@@ -166,6 +166,29 @@ export class DevicesService {
 
     await this.deviceRepository.delete(deviceId);
 
+    // Delete the bridge emqx api & add to the banned list
+    if (existingDevice.bridgeRuleId) {
+      const result = await Promise.allSettled([
+        this.httpEmqxApiService.emqxApiDeleteBridge(
+          existingDevice.bridgeRuleId,
+        ),
+        this.httpEmqxApiService.emqxApiPostAddBanned({
+          as: 'clientid',
+          who: existingDevice.bridgeRuleId,
+          reason: 'Device deleted by User',
+        }),
+      ]);
+
+      result.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          console.error(
+            `Error occurred while processing result ${index}:`,
+            result.reason,
+          );
+        }
+      });
+    }
+
     return {
       status: true,
       device: existingDevice,
