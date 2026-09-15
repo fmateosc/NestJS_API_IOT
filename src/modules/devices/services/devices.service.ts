@@ -208,6 +208,7 @@ export class DevicesService {
           HttpStatus.BAD_REQUEST,
         );
       }
+
       await this.httpEmqxApiService.emqxApiPutEnableDisableBridge(
         existingDevice.bridgeRuleId,
         updateDeviceData.bridgeRuleEnabled,
