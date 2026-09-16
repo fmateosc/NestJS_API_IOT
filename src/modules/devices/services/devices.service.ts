@@ -323,4 +323,50 @@ export class DevicesService {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.httpEmqxApiService.emqxApiGetTopicList();
   }
+
+  // buscar por clave - valor
+  public async findBy({
+    key,
+    value,
+  }: {
+    key: keyof DeviceDto;
+    value: any;
+  }): Promise<DevicesEntity | null> {
+    const device = await this.deviceRepository
+      .createQueryBuilder('device')
+      .leftJoinAndSelect('device.createUserId', 'createUserId')
+      .where(`device.${key} = :value`, { value })
+      .getOne();
+
+    return device;
+  }
+
+  // Update device status (Actualizado evitar error)
+  public async updateDeviceConnection(
+    deviceSerial: string,
+    status: boolean,
+  ): Promise<void> {
+    const device = await this.findBy({
+      key: 'deviceSerial',
+      value: deviceSerial,
+    });
+
+    if (!device) {
+      throw new Error(`Device with serial "${deviceSerial}" not found`);
+
+      return;
+    }
+
+    const userInfo: IUserInfo = {
+      userId: device.createUserId.id,
+      userAccess: device.createUserId.userAccess,
+    };
+
+    const data: UpdateDeviceDto = {
+      deviceLastseen: new Date(),
+      deviceOnline: status,
+    };
+
+    await this.updateDeviceById(data, device.id, userInfo);
+  }
 }
