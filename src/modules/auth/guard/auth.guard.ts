@@ -44,6 +44,12 @@ export class AuthGuard implements CanActivate {
     }
 
     if (manageToken.isExpired) {
+      await this.usersService.updateUserConnection(
+        manageToken.userId,
+        manageToken.role,
+        false,
+      );
+
       throw new UnauthorizedException('Token has expired');
     }
 
