@@ -17,6 +17,9 @@ npm add -D @types/jsonwebtoken
 # Servicios http axios
 npm install --save @nestjs/axios axios
 
+# Servicios de libreria MQTTjs
+npm install mqtt
+
 ## Users
 nest g mo modules/users/users --flat --no-spec
 nest g s modules/users/services/users --flat --no-spec
@@ -53,3 +56,7 @@ nest g s modules/providers/http/emqx-api --flat --no-spec
 nest g mo modules/messages/messages --flat --no-spec
 nest g s modules/messages/services/messages --flat --no-spec
 nest g co modules/messages/controllers/messages --flat --no-spec
+
+## API Services providers MQTT
+nest g mo modules/providers/mqttProvider --flat --no-spec
+nest g s modules/providers/mqtt/mqtt --flat --no-spec

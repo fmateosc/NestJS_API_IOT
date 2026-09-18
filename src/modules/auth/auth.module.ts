@@ -6,6 +6,7 @@ import { AuthController } from './controllers/auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '../users/users.module';
 import { AclEntity } from './entities/acl.entity';
+import { MqttProviderModule } from '../providers/mqtt-provider.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { AclEntity } from './entities/acl.entity';
       AclEntity,
     ]),
     forwardRef(() => UsersModule),
+    MqttProviderModule
   ],
   providers: [AuthService],
   controllers: [AuthController],
